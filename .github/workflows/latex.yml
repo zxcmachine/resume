@@ -1,0 +1,35 @@
+name: Build LaTeX document
+on:
+  push:
+    branches: [ "main" ]
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: cv.tex
+          latexmk_use_xelatex: true
+
+      - name: Upload PDF file
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF
+          path: cv.pdf
+          overwrite: true
+
+      - name: Move PDF file to build path
+        run: |
+          mkdir -p build
+          mv cv.pdf build/cv.pdf
+
+      - name: Deploy to gh-pages
+        uses: crazy-max/ghaction-github-pages@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          build_dir: build
